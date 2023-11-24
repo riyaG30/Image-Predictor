@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Image Classification App</title>
+</head>
+
+<body>
+    <input id="upload" type="file" name="image">
+    <button id="predict-button">Predict</button>
+    <h1>Predictions</h1>
+    <p><span id="prediction"></span></p>
+    <img id="selected-image" src="" />
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        let base64Image;
+
+        $("#upload").change(function() {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let dataURL = reader.result;
+                $('#selected-image').attr("src", dataURL);
+                base64Image = dataURL.split(",")[1];  // Extract base64 image data
+            }
+            reader.readAsDataURL($("#upload")[0].files[0]);
+            $("#prediction").text("");
+        });
+
+        $("#predict-button").click(function() {
+            let message = { image: base64Image };
+            $.post("http://127.0.0.1:5000/predict", message, function(response) {
+                $("#prediction").text("Results: " + response[0].label + " ( Confidence: " + response[0].probability.toFixed(2) + ")");
+            });
+        });
+    </script>
+</body>
+
+</html>
